@@ -1,0 +1,39 @@
+version: '2.3'
+
+services:  
+  db:
+    image: postgres
+    volumes:      
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - ruby-postgres
+    environment:
+      - POSTGRES_PASSWORD=test_password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=test
+  webapp:    
+    build:      
+      context: ./webapp
+      dockerfile: Dockerfile
+    volumes:
+      - data01:/box
+      - ./webapp:/var/www/app/webapp/
+    links:
+      - db
+    ports:
+      - "3000:3000"
+    networks:
+      - ruby-postgres
+  box:
+    image: busybox
+    volumes:
+      - data01:/box
+volumes:  
+  postgres_data: {} 
+  data01:
+    driver: local
+networks:
+  ruby-postgres:
+    driver: bridge
